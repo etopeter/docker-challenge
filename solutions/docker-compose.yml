@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+  redis:
+    restart: always
+    image: taos/redis:latest
+    command:
+    - --loglevel warning
+    networks:
+      - spruce-backend
+
+  postgresql:
+    restart: always
+    build:
+      dockerfile: ./Dockerfile-postgresql
+      context: .
+    environment:
+    - DB_USER=gitlab
+    - DB_PASS=password
+    - DB_NAME=gitlabhq_production
+    - DB_EXTENSION=pg_trgm
+    networks:
+      - spruce-backend
+
+  gitlab:
+    restart: always
+    image: taos/gitlab:8.11.3.1
+    depends_on:
+    - redis
+    - postgresql
+    ports:
+    - "80:80"
+    - "10022:22"
+    env_file: conf.env
+    networks:
+      - taos-backend
+
+networks:
+  taos-backend:
+    driver: bridge

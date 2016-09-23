@@ -1,0 +1,3 @@
+FROM sprucefinance/postgresql:gitlab
+
+COPY functions /etc/docker-postgresql/functions
